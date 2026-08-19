@@ -1,14 +1,16 @@
 ﻿"use client";
 import { useEffect, useState } from "react";
-import { RefreshCw, Network, LayoutDashboard, Database as DbIcon } from "lucide-react";
-import { Dependency, GraphNode } from "@/types";
+import { RefreshCw, Network, LayoutDashboard, Database as DbIcon, ShieldAlert } from "lucide-react";
+import { Dependency, GraphNode, SPOF } from "@/types";
 import { AddNodeForm } from "@/components/AddNodeForm";
 import { LinkNodesForm } from "@/components/LinkNodesForm";
 import { DependencyCard } from "@/components/DependencyCard";
+import { SPOFCard } from "@/components/SPOFCard";
 
 export default function Dashboard() {
   const [data, setData] = useState<Dependency[]>([]);
   const [nodes, setNodes] = useState<GraphNode[]>([]);
+  const [spofs, setSpofs] = useState<SPOF[]>([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [error, setError] = useState("");
@@ -17,18 +19,21 @@ export default function Dashboard() {
     setLoading(true);
     setError("");
     try {
-      const [graphRes, nodesRes] = await Promise.all([
+      const [graphRes, nodesRes, spofRes] = await Promise.all([
         fetch("/api/graph", { cache: "no-store" }),
-        fetch("/api/services", { cache: "no-store" })
+        fetch("/api/services", { cache: "no-store" }),
+        fetch("/api/spof", { cache: "no-store" })
       ]);
       
-      if (!graphRes.ok || !nodesRes.ok) throw new Error("Database is currently unreachable.");
+      if (!graphRes.ok || !nodesRes.ok || !spofRes.ok) throw new Error("Database is currently unreachable.");
       
       const graphJson = await graphRes.json();
       const nodesJson = await nodesRes.json();
+      const spofJson = await spofRes.json();
       
       setData(graphJson.dependencies);
       setNodes(nodesJson.nodes);
+      setSpofs(spofJson.spofs);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -39,7 +44,8 @@ export default function Dashboard() {
   const handleSeed = async () => {
     setSeeding(true);
     try {
-      const res = await fetch("/api/seed", { method: "POST" }); if (!res.ok) throw new Error("Seed failed");
+      const res = await fetch("/api/seed", { method: "POST" });
+      if (!res.ok) throw new Error("Seed failed");
       await fetchData();
     } catch (err: any) {
       setError("Failed to seed database.");
@@ -53,7 +59,7 @@ export default function Dashboard() {
   }, []);
 
   const handleDelete = async (name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+    if (!confirm(`Are you sure you want to delete \?`)) return;
     await fetch("/api/services", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -108,6 +114,20 @@ export default function Dashboard() {
           <LinkNodesForm nodes={nodes} onLinked={fetchData} />
         </div>
 
+        {spofs.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold mb-6 text-red-400 flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5" />
+              Critical Single Points of Failure
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {spofs.map((spof, idx) => (
+                <SPOFCard key={idx} spof={spof} />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div>
           <h2 className="text-xl font-semibold mb-6 text-zinc-100 flex items-center gap-2">
             Blast Radius Analysis
@@ -135,5 +155,4 @@ export default function Dashboard() {
     </div>
   );
 }
-
 

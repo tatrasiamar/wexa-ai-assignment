@@ -15,6 +15,21 @@ export const graphService = {
     }));
   },
 
+
+  async getSinglePointsOfFailure(): Promise<any[]> {
+    const query = `MATCH (t:Team)<-[:OWNED_BY]-(s:Service)-[:READS_FROM]->(db:Database)
+      WITH db, collect(DISTINCT s.name) AS services, count(DISTINCT s) AS numServices, count(DISTINCT t) AS numTeams
+      WHERE numServices >= 3 AND numTeams >= 2
+      RETURN db.name AS databaseName, numServices, numTeams, services
+      ORDER BY numServices DESC`;
+    const result = await runQuery(query);
+    return result.records.map((r) => ({
+      databaseName: r.get('databaseName'),
+      numServices: r.get('numServices').toNumber(),
+      numTeams: r.get('numTeams').toNumber(),
+      services: r.get('services')
+    }));
+  },
   async getAllNodes(): Promise<GraphNode[]> {
     const query = `
       MATCH (n) WHERE n:Service OR n:Database
@@ -79,6 +94,8 @@ export const graphService = {
     await runQuery(seedQuery);
   }
 };
+
+
 
 
 
