@@ -11,7 +11,7 @@ export function DependencyCard({ dep, onDelete }: Props) {
     <div className="group relative bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition-colors rounded-md p-5 flex flex-col h-full">
       <button 
         onClick={() => onDelete(dep.affectedService)} 
-        className="absolute top-4 right-4 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-4 right-4 text-zinc-600 hover:text-red-400 opacity-50 hover:opacity-100 transition-all sm:opacity-0 sm:group-hover:opacity-100"
         title={`Delete ${dep.affectedService}`}
       >
         <Trash2 className="w-4 h-4" />
@@ -42,3 +42,4 @@ export function DependencyCard({ dep, onDelete }: Props) {
     </div>
   );
 }
+

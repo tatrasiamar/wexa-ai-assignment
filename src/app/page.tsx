@@ -22,7 +22,7 @@ export default function Dashboard() {
         fetch("/api/services", { cache: "no-store" })
       ]);
       
-      if (!graphRes.ok) throw new Error("Database is currently unreachable.");
+      if (!graphRes.ok || !nodesRes.ok) throw new Error("Database is currently unreachable.");
       
       const graphJson = await graphRes.json();
       const nodesJson = await nodesRes.json();
@@ -39,7 +39,7 @@ export default function Dashboard() {
   const handleSeed = async () => {
     setSeeding(true);
     try {
-      await fetch("/api/seed", { method: "POST" });
+      const res = await fetch("/api/seed", { method: "POST" }); if (!res.ok) throw new Error("Seed failed");
       await fetchData();
     } catch (err: any) {
       setError("Failed to seed database.");
@@ -135,4 +135,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
