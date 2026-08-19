@@ -18,8 +18,8 @@ export default function Dashboard() {
     setError("");
     try {
       const [graphRes, nodesRes] = await Promise.all([
-        fetch("/api/graph"),
-        fetch("/api/services")
+        fetch("/api/graph", { cache: "no-store" }),
+        fetch("/api/services", { cache: "no-store" })
       ]);
       
       if (!graphRes.ok) throw new Error("Database is currently unreachable.");
@@ -135,3 +135,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
