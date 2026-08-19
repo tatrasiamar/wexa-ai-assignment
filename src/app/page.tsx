@@ -1,6 +1,6 @@
 ﻿"use client";
 import { useEffect, useState } from "react";
-import { RefreshCw, Network, LayoutDashboard } from "lucide-react";
+import { RefreshCw, Network, LayoutDashboard, Database as DbIcon } from "lucide-react";
 import { Dependency, GraphNode } from "@/types";
 import { AddNodeForm } from "@/components/AddNodeForm";
 import { LinkNodesForm } from "@/components/LinkNodesForm";
@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [data, setData] = useState<Dependency[]>([]);
   const [nodes, setNodes] = useState<GraphNode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [error, setError] = useState("");
 
   const fetchData = async () => {
@@ -32,6 +33,18 @@ export default function Dashboard() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    try {
+      await fetch("/api/seed", { method: "POST" });
+      await fetchData();
+    } catch (err: any) {
+      setError("Failed to seed database.");
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -65,13 +78,23 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          <button 
-            onClick={fetchData} 
-            className="mt-6 md:mt-0 flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-md transition-colors text-sm font-medium"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            Sync Graph
-          </button>
+          <div className="mt-6 md:mt-0 flex items-center gap-3">
+            <button 
+              onClick={handleSeed} 
+              disabled={seeding}
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-white hover:bg-zinc-700 rounded-md transition-colors text-sm font-medium border border-zinc-700"
+            >
+              <DbIcon className={`w-4 h-4 ${seeding ? "animate-bounce" : ""}`} />
+              {seeding ? "Seeding..." : "Seed Demo Data"}
+            </button>
+            <button 
+              onClick={fetchData} 
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black hover:bg-zinc-200 rounded-md transition-colors text-sm font-medium"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+              Sync Graph
+            </button>
+          </div>
         </header>
 
         {error && (
@@ -98,7 +121,7 @@ export default function Dashboard() {
             <div className="flex flex-col items-center justify-center py-24 text-center border border-zinc-800 rounded-md bg-zinc-900/50">
               <Network className="w-8 h-8 text-zinc-600 mb-3" />
               <h3 className="text-sm font-medium text-zinc-300">Graph is Empty</h3>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm">No dependencies found. Create nodes and connect them above.</p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-sm">No dependencies found. To see the Blast Radius, you need a Service that Depends On another Service, which Reads From a Database.</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
