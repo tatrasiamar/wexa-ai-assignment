@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
-import { runQuery } from '@/lib/neo4j';
+import { graphService } from '@/services/graphService';
 
 export async function POST(request: Request) {
   try {
@@ -7,17 +7,7 @@ export async function POST(request: Request) {
     if (!source || !target || !relType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
-
-    const safeRelType = relType === 'READS_FROM' ? 'READS_FROM' : 'DEPENDS_ON';
-
-    const query = `
-      MATCH (a) WHERE a.name = $source
-      MATCH (b) WHERE b.name = $target
-      MERGE (a)-[r:${safeRelType}]->(b)
-      RETURN r
-    `;
-    
-    await runQuery(query, { source, target });
+    await graphService.createRelationship(source, target, relType);
     return NextResponse.json({ message: 'Relationship created' }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
