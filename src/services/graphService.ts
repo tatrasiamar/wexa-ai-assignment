@@ -7,7 +7,7 @@ export const graphService = {
       MATCH (upstream:Service)-[:DEPENDS_ON*1..2]->(downstream:Service)-[:READS_FROM]->(db:Database )
       RETURN upstream.name AS affectedService, db.name AS databaseName, downstream.name AS directDependency
     `;
-    const result = await runQuery(cypherQuery, );
+    const result = await runQuery(cypherQuery);
     return result.records.map((record) => ({
       affectedService: record.get('affectedService'),
       databaseName: record.get('databaseName'),
@@ -79,4 +79,5 @@ export const graphService = {
     await runQuery(seedQuery);
   }
 };
+
 
