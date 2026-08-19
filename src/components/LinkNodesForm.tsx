@@ -27,7 +27,7 @@ export function LinkNodesForm({ nodes, onLinked }: { nodes: GraphNode[], onLinke
             <label className="text-xs text-zinc-500 mb-1.5 block">Source</label>
             <select required className="w-full bg-zinc-950 border border-zinc-800 rounded-md p-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-500 transition-colors appearance-none truncate" value={sourceNode} onChange={e => setSourceNode(e.target.value)}>
               <option value="">Select...</option>
-              {nodes.map(n => <option key={`src-${n.name}`} value={n.name}>{n.name} ({n.type})</option>)}
+              {nodes.map((n, i) => <option key={`src-${n.name}-${i}`} value={n.name}>{n.name} ({n.type})</option>)}
             </select>
           </div>
           <div className="flex-1">
@@ -43,7 +43,7 @@ export function LinkNodesForm({ nodes, onLinked }: { nodes: GraphNode[], onLinke
             <label className="text-xs text-zinc-500 mb-1.5 block">Target</label>
             <select required className="w-full bg-zinc-950 border border-zinc-800 rounded-md p-2.5 text-sm text-zinc-100 outline-none focus:border-zinc-500 transition-colors appearance-none truncate" value={targetNode} onChange={e => setTargetNode(e.target.value)}>
               <option value="">Select...</option>
-              {nodes.map(n => <option key={`tgt-${n.name}`} value={n.name}>{n.name} ({n.type})</option>)}
+              {nodes.map((n, i) => <option key={`tgt-${n.name}-${i}`} value={n.name}>{n.name} ({n.type})</option>)}
             </select>
           </div>
           <button type="submit" className="self-end bg-white hover:bg-zinc-200 text-black px-5 py-2.5 rounded-md text-sm font-medium transition-colors">
@@ -54,3 +54,4 @@ export function LinkNodesForm({ nodes, onLinked }: { nodes: GraphNode[], onLinke
     </div>
   );
 }
+
